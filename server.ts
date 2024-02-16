@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
+import authRouter from "./routes/auth.route";
 
 export const prisma = new PrismaClient();
 const app = express();
@@ -22,6 +23,8 @@ async function main() {
       message: "Welcome to Two-Factor Authentication with Node.js",
     });
   });
+
+  app.use("/api/auth", authRouter);
 
   app.all("*", (req: Request, res: Response) => {
     return res.status(404).json({
