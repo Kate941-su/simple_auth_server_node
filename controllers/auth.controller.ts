@@ -104,7 +104,8 @@ const GenerateOTP = async (req: Request, res: Response) => {
       });
     }
 
-    const base32_secret = generateRandomBase32();
+    // Generate secret key if user doesn't have secret key.
+    const base32_secret = user.otp_base32 ?? generateRandomBase32();
 
     let totp = new OTPAuth.TOTP({
       // TODO: Change Issuer and label.
