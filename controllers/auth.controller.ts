@@ -29,7 +29,7 @@ const RegisterUser = async (
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         return res.status(409).json({
-          sstatus: "fail",
+          status: "fail",
           message: "Email already exist, please use another email address",
         });
       }
@@ -47,10 +47,24 @@ const LoginUser = async (req: Request, res: Response, next: NextFunction) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(password)
+      .digest("hex");
+
     if (!user) {
       return res.status(404).json({
         status: "fail",
         message: "No user with that email exists",
+      });
+    }
+
+    console.log(hashedPassword);
+
+    if (user.password != hashedPassword) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Username or password are incorrenct",
       });
     }
 
@@ -126,6 +140,8 @@ const GenerateOTP = async (req: Request, res: Response) => {
 const VerifyOTP = async (req: Request, res: Response) => {
   try {
     const { user_id, token } = req.body;
+
+    console.log(req.body);
 
     const user = await prisma.user.findUnique({ where: { id: user_id } });
 
